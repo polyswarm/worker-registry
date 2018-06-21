@@ -1,0 +1,13 @@
+{
+    "name": "foo",
+    "microengines": [
+        {
+            "address": "0x0000000000000000000000000000000000000000",
+            "mimetypes": ["application/pdf"]
+        },
+        {
+            "address": "0x0000000000000000000000000000000000000001",
+            "mimetypes": ["application/vnd.microsoft.portable-executable"]
+        }
+    ]
+}

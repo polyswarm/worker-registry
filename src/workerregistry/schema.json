@@ -1,0 +1,44 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "title": "Developer",
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "Name of the developer"
+        },
+        "microengines": {
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 100,
+            "description": "Array of the developer's microengines",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "address": {
+                        "type": "string",
+                        "pattern": "^(0x)?[0-9a-fA-f]{40}$",
+                        "minLength": 40,
+                        "maxLength": 42,
+                        "description": "Address of the  microengine"
+                    },
+                    "mimetypes": {
+                        "type": "array",
+                        "minItems": 0,
+                        "maxItems": 100,
+                        "description": "Mimetypes handled by the  microengine",
+                        "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 100
+                        }
+                    }
+                },
+                "required": ["address", "mimetypes"] 
+            }
+        }
+    },
+    "required": ["name", "microengines"] 
+}
