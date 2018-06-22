@@ -17,7 +17,12 @@ SIZE_LIMIT = 10 * 1024 * 1024
 # For testing purposes, until other components are ready
 IPFS_HASH = 'QmaQr2GoGZ4N15uwANCW9fXe5tP8ZV6KER4H2g9Cgeg6ry'
 
-with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'schema.json'), 'r') as f:
+
+def whereami():
+    return os.path.dirname(os.path.realpath(__file__))
+
+
+with open(os.path.join(whereami(), 'data', 'schema.json'), 'r') as f:
     SCHEMA = json.load(f)
 
 

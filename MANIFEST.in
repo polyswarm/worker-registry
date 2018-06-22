@@ -1,1 +1,1 @@
-include requirements.txt src/*.json tests/*.json
+include requirements.txt src/workerregistry/data/*.json

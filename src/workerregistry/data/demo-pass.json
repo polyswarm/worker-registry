@@ -1,0 +1,13 @@
+{
+  "author": "The guy who wrote it.",
+  "bio": "5 Years infosec experience",
+  "address": "0xaf8302a3786a35abeddf19758067adc9a23597e5",
+  "skills": ["Reverse Engineering", "Malware Analysis"],
+  "microengines": [
+    { 
+      "address": "af8302a3786a35abeddf19758067adc9a23597e5",
+      "description": "This finds a specific malware family.",
+      "tags": ["Everything"]
+    }
+  ]
+}

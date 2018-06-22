@@ -1,15 +1,25 @@
 image: docker:stable
 
+stages:
+    - test
+    - build
+
 services:
-  - docker:dind
+    - docker:dind
 
 before_script:
-  - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
-  
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+
+py35:
+    image: python:3.5
+    stage: test
+    script: tox -e py35
+    
 variables:
-  DOCKER_HUB_REGISTRY: "https://index.docker.io/v1/"
+    DOCKER_HUB_REGISTRY: "https://index.docker.io/v1/"
 
 build-master:
+    stage: build
     only: 
         - master
     tags:
@@ -22,6 +32,7 @@ build-master:
         - docker push $DOCKER_FULL_PATH
 
 build-non-master:
+    stage: build
     except: 
         - master
     tags:

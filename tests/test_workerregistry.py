@@ -2,12 +2,14 @@ import io
 import os
 import requests_mock
 
-from workerregistry import IPFS_URI
+from workerregistry import IPFS_URI, whereami
 from tests import client
 
-with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'test.json'), 'r') as f:
+with open(os.path.join(whereami(), 'data', 'demo-pass.json'), 'r') as f:
     VALID_JSON = f.read()
 
+with open(os.path.join(whereami(), 'data', 'demo-fail.json'), 'r') as f:
+    INVALID_JSON = f.read()
 
 def setup_mocks(mock):
     mock.get(
