@@ -3,6 +3,7 @@ import workerregistry
 
 @pytest.fixture
 def client():
-    workerregistry.app.config['TESTING'] = True
-    client = workerregistry.app.test_client()
+    app = workerregistry.create_app()
+    app.config['TESTING'] = True
+    client = app.test_client()
     yield client

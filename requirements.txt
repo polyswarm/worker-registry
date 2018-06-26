@@ -1,11 +1,13 @@
 base58==0.2.5
+cached-property==1.4.3
+click==6.7
 ethereum==2.3.1
 gevent==1.2.2
 Flask==1.0.2
 jsonschema==2.6.0
+mock==2.0.0
 pytest==3.5.1
 requests==2.18.4
 requests-mock==1.5.0
-rlp==0.6.0
-web3==4.2.0
+web3==4.4.0
 Werkzeug==0.14.1
