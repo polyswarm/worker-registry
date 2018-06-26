@@ -6,4 +6,3 @@ __pycache__/
 .tox
 .vscode/
 *.egg-info
-src/workerregistry/data/WorkerDescriptionRegistry.json
