@@ -20,11 +20,8 @@ build-master:
     stage: build
     services:
         - docker:dind
-    before_script:
-        - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
     script:
         - docker build -t $DOCKER_FULL_PATH -f docker/Dockerfile .
-        - docker push $DOCKER_FULL_PATH
 
 build-non-master:
     image: docker:stable
@@ -37,8 +34,5 @@ build-non-master:
     stage: build
     services:
         - docker:dind
-    before_script:
-        - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
     script:
         - docker build -t $DOCKER_FULL_PATH -f docker/Dockerfile .
-        - docker push $DOCKER_FULL_PATH
