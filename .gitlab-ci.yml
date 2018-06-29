@@ -16,7 +16,6 @@ build-master:
     tags:
         - docker
     variables:
-        DOCKER_HUB_REGISTRY: "https://index.docker.io/v1/"
         DOCKER_FULL_PATH: "$CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:latest"
     stage: build
     services:
