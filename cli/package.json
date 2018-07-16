@@ -18,6 +18,7 @@
     "ethereumjs-util": "^5.2.0",
     "figlet": "^1.2.0",
     "inquirer": "^6.0.0",
+    "jsonschema": "^1.2.4",
     "keythereum": "^1.0.4",
     "underscore": "^1.9.1"
   }

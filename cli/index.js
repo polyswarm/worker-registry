@@ -4,6 +4,7 @@ const chalk = require('chalk');
 const _ = require('underscore');
 const keythereum = require('keythereum');
 const etherutils = require('ethereumjs-util');
+const Validator = require('jsonschema').Validator;
 
 const selectAction = async () => {
   const action = [{
@@ -13,7 +14,7 @@ const selectAction = async () => {
       default: 0,
       choices: [ "Enter developer info", "Add a microengine", new inquirer.Separator(), "Validate", "Sign and exit"]
     }];
-  
+
   return await inquirer.prompt(action);
 };
 
@@ -52,7 +53,10 @@ const enterDeveloper = async () => {
   ];
 
   developer =  await inquirer.prompt(questions);
-  developer.skills = developer.skills.split(",").map(skill => skill.trim());
+  developer.skills = developer.skills
+    .split(",")
+    .map(skill => skill.trim())
+    .filter(skill => skill.length > 0);
   return developer;
 
 };
@@ -79,8 +83,10 @@ const addMicroengine = async () => {
   ];
 
   const engine = await inquirer.prompt(questions);
-
-  console.log(engine);
+  engine.tags = engine.tags
+    .split(",")
+    .map(tag => tag.trim())
+    .filter(tag => tag.length > 0);
 
   let signed = null;
 
@@ -145,8 +151,33 @@ const sign = async (object, address) => {
   return {r: r, s: s, v: v};
 };
 
-const validate = async () => {
+const validate = async (entry) => {
+  const fs = require('fs');
+  try {
+    const path = await new Promise((resolve, reject) => {
+      fs.realpath('./schema.json', (err, path) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        resolve(path);
+      });
+    });
 
+    const schema = await new Promise((resolve, reject) => {
+      fs.readFile(path, 'utf-8', (err, schemaString) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        resolve(schemaString);
+      });
+    });
+    const validator = new Validator();
+    return validator.validate(entry, JSON.parse(schema));
+  } catch (error) {
+    console.log(`${chalk.red("X")} ${error}`);
+  }
 };
 
 const main = async () => {
@@ -182,14 +213,19 @@ const main = async () => {
         console.log(`${chalk.red("X")} Cancelled microengine.`);
       }
     } else if (answer.action == "Validate") {
-
+      const result = await validate(registryEntry);
+      if (result.valid) {
+        console.log(`${chalk.green("?")} Passed validation.`);
+      } else {
+        console.log(`${chalk.red("X")} ${result.errors}`);
+      }
     }
   }
 
   // Validate
 
   // Sign
-  console.log(registryEntry);
+  console.log(JSON.stringify(registryEntry));
 }
 
 main();
