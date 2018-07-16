@@ -1,0 +1,22 @@
+{
+  "name": "worker-cli",
+  "version": "1.0.0",
+  "description": "Generate & sign worker registry json file.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "polyswarm",
+    "wdl"
+  ],
+  "author": "Swarm Technologies <info.polyswarm.io>",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^2.4.1",
+    "clui": "^0.3.6",
+    "figlet": "^1.2.0",
+    "inquirer": "^6.0.0",
+    "underscore": "^1.9.1"
+  }
+}
