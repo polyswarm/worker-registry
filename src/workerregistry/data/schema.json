@@ -1,8 +1,8 @@
 {
     "$schema": "http://json-schema.org/draft-06/schema#",
     "title": "PolySwarm Worker Design Language",
-    "description": "Worker Design Language for Security Experts to define their PolySwarm micro-engines.",
-    "required": ["author", "address", "microengines"],
+    "description": "Worker Design Language for Security Experts to define their PolySwarm microengines.",
+    "required": ["author", "address", "microengines", "signatures"],
     "type": "object",
     "$defs": {
         "address": { "type": "string", "pattern": "^(0x){0,1}[0-9a-fA-F]{40}$" },
@@ -23,6 +23,8 @@
         "skills": { "$ref": "#/$defs/tags"},
         "microengines": {
             "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
             "items": {
                 "type": "object",
                 "description": "Microengine description for PolySwarm.",
@@ -32,9 +34,22 @@
                     "description": { "type": "string" },
                     "tags": { "$ref": "#/$defs/tags" }
                 }
-            },
+            }
+        },
+        "signatures": {
+            "type": "array",
             "minItems": 1,
-            "uniqueItems": true
+            "uniqueItems": true,
+            "items": {
+                "type": "object",
+                "description": "Signed hash of the related microengine object. Must be entered in the same order.",
+                "required": ["v", "r", "s"],
+                "properties": {
+                    "v" : { "type": "integer", "minimum": 27, "maximum": 28, "exclusiveMaximum": false },
+                    "r": { "type": "string", "pattern": "^(0x){0,1}[0-9a-fA-F]{64}$" },
+                    "s": { "type": "string", "pattern": "^(0x){0,1}[0-9a-fA-F]{64}$" }
+                }
+            }
         }
     }
 }

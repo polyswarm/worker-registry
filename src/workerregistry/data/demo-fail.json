@@ -9,6 +9,12 @@
       "description": "This finds a specific malware family.",
       "tags": ["Everything"]
     }
+  ],
+  "signatures": [
+    {    
+      "v": 28,
+      "r": "0x17b698d9dc52e48e724238ecd978c198fd565b430f0734c040338f494926478f",
+      "s": "0x308990ad029f321e62943748c7a76ecf4c7279649d41d91fda0e4e9acb5befaa"
+    }
   ]
 }
-
