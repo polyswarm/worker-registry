@@ -2,6 +2,7 @@
 
 // Node imports
 const fs = require('fs');
+const Entry = require('./entry');
 
 // Vendor imports
 const figlet = require('figlet');
@@ -20,89 +21,132 @@ const selectAction = async () => {
       name: "action",
       message: "Choose an action.",
       default: 0,
-      choices: [ "Enter developer info", "Add a microengine", new inquirer.Separator(), "Validate", "Sign and exit"]
+      choices: [
+        "Enter developer info",
+        "Add a microengine",
+        new inquirer.Separator(),
+        "Validate",
+        "Export"
+      ]
     }];
 
   return await inquirer.prompt(action);
 };
 
-const enterDeveloper = async () => {
-  const questions = [
-    {
-      type: "input",
-      name: "author",
-      message: "What is your name/nickname?",
-    },
-    {
-      type: "input",
-      name: "address",
-      message: "What is the address of your ether wallet?",
-    },
-    {
-      type: "input",
-      name: "website",
-      message: "Share your website (optional)",
-    },
-    {
-      type: "input",
-      name: "github",
-      message: "Share your github (optional)",
-    },
-    {
-      type: "input",
-      name: "bio",
-      message: "Share a short bio (optional)",
-    },
-    {
-      type: "input",
-      name: "skills",
-      message: "Enter a comma separated list of your skills (optional)",
-    },
-  ];
+const overwrite = async field => {
+  const question = [{
+    type: "confirm",
+    default: false,
+    name: "overwrite",
+    message: `Overwrite existing ${field}`
+  }];
+  const answer =  await inquirer.prompt(question);
+  return answer.overwrite;
+};
 
-  developer =  await inquirer.prompt(questions);
-  developer.skills = developer.skills
+const addField = async (entry, outObject, fieldName, message, validation = null) => {
+  if (!entry || !entry[fieldName] || entry[fieldName].length == 0 || await overwrite(fieldName)) {
+    const question = {
+      type: "input",
+      name: fieldName,
+      message: message
+    };
+    if (validation) {
+      question.validate = validation;
+    }
+    outObject[fieldName] = (await inquirer.prompt([question]))[fieldName];
+  }
+}
+
+const enterDeveloper = async (entry) => {
+  const developer = {};
+
+  await addField(entry,
+		developer,
+    "author",
+    "What is your name/nickname?",
+    entry.validateAuthor);
+
+  await addField(entry,
+		developer,
+    "address",
+    "What is the address of your ether wallet?",
+    entry.validateEthereumAddress);
+
+  await addField(entry,
+		developer,
+    "skills",
+    "Enter a comma separated list of your skills",
+    entry.validateSkills);
+
+  await addField(entry,
+		developer,
+    "website",
+    "Share your website (optional)");
+
+  await addField(entry,
+		developer,
+    "github",
+    "Share your github (optional)");
+
+  await addField(entry,
+		developer,
+    "bio",
+    "Share a short bio (optional)");
+
+
+  if (developer.skills) {
+    developer.skills = developer.skills
     .split(",")
     .map(skill => skill.trim())
     .filter(skill => skill.length > 0);
+  }
   return developer;
-
 };
 
-const addMicroengine = async () => {
-  const added = {};
+const addMicroengine = async (entry) => {
+  const engine = {};
 
-  const questions = [
-    {
-      type: "input",
-      name: "address",
-      message: "What is the address for the micro engine wallet?",
-    },
-    {
-      type: "input",
-      name: "tags",
-      message: "Enter a comma separated list of tags for this micro engine",
-    },
-    {
-      type: "input",
-      name: "description",
-      message: "Enter a description of the micro engine (optional)",
-    },
-  ];
+  await addField(null,
+		engine,
+    "address",
+    "What is the address for the micro engine wallet?",
+    entry.validateEngineAddress);
 
-  const engine = await inquirer.prompt(questions);
+  await addField(null,
+		engine,
+    "tags",
+    "Enter a comma separated list of tags for this micro engine");
+
+  await addField(null,
+		engine,
+    "description",
+    "Enter a description of the micro engine (optional)");
+
   engine.tags = engine.tags
     .split(",")
     .map(tag => tag.trim())
     .filter(tag => tag.length > 0);
 
-  let signed = null;
+  const signed = await trySign(engine, engine.address);
+  if (!signed) {
+    return null;
+  }
 
+  // Because it checks for the value in the entry, the check in addField causes issues.
+  const result = {}
+  result.microengine = engine;
+  result.signed = signed;
+  return result;
+};
+
+const trySign = async (object, address) => {
+  let signed = null;
   do {
     try {
-      signed = await sign(engine, engine.address);
+      signed = await sign(object, address);
     } catch(error) {
-      console.log(`${chalk.red("X")} Missing keyfile or bad password.`);
+      printError("Missing keyfile or bad password.");
     }
     if (signed == null) {
       const tryAgain = [{
@@ -113,15 +157,12 @@ const addMicroengine = async () => {
       }]
       const choice = await inquirer.prompt(tryAgain);
       if (!choice.confirm) {
-        return null;
+        break;
       }
     }
   } while (signed == null);
-
-  added.microengine = engine;
-  added.signed = signed;
-  return added;
-};
+  return signed;
+}
 
 const sign = async (object, address) => {
   const signing = [
@@ -183,68 +224,65 @@ const validate = async (entry) => {
     const validator = new Validator();
     return validator.validate(entry, JSON.parse(schema));
   } catch (error) {
-    console.log(`${chalk.red("X")} ${error}`);
+    printError(error);
   }
 };
 
-const main = async () => {
+const printError = error => {
+  console.log(`${chalk.red("X")} ${error}`);
+}
+
+const printSuccess = success => {
+  console.log(`${chalk.green("?")} ${success}`);
+}
+
+const getArgs = () => {
   const args = process.argv;
-  if (args.length != 4) {
-    usage = `Usage: polyswarm-registry <entry_output_file> <sig_output_file>`;
+  if (args.length != 3) {
+    usage = `Usage: polyswarm-registry <entry_output_file>`;
     console.log(usage);
-    return;
+    process.exit(1);
   }
-  const entryOutput = args[2];
-  const sigOutput = args[3];
+  return args[2];
+};
+
+const main = async () => {
+  const entryOutput = getArgs();
+
   console.log(chalk.rgb(133, 0, 255)(figlet.textSync('PolySwarm Registry Builder')));
 
-  let registryEntry = {
-    author: '',
-    bio: '',
-    website: '',
-    github: '',
-    skills: [],
-    address: '',
-    microengines: [],
-    signatures: []
-  };
+  const registryEntry = new Entry();
 
   let answer = null;
   while (true) {
-    answer = await selectAction()
+    answer = await selectAction();
     if (answer.action == "Enter developer info") {
-      const developer = await enterDeveloper();
-      const keys = _.keys(developer);
-      keys.forEach(key => {
-        if (developer[key]) {
-          registryEntry[key] = developer[key];
-        }
-      });
+      const developer = await enterDeveloper(registryEntry);
+      registryEntry.setDeveloper(developer);
+
     } else if (answer.action == "Add a microengine") {
-      const added = await addMicroengine();
-      if (added) {
-        registryEntry.microengines.push(added.microengine);
-        registryEntry.signatures.push(added.signed);
+      const engine = await addMicroengine(registryEntry);
+      if (engine) {
+        registryEntry.addMicroengine(engine.microengine, engine.signed);
       } else {
-        console.log(`${chalk.red("X")} Cancelled microengine.`);
+        printError("Cancelled microengine.");
       }
+
     } else if (answer.action == "Validate") {
       const result = await validate(registryEntry);
       if (result.valid) {
-        console.log(`${chalk.green("?")} Passed validation.`);
+        printSuccess("Passed validation.");
       } else {
-        console.log(`${chalk.red("X")} ${result.errors}`);
-      }
-    } else if (answer.action == "Sign and exit") {
-      const result = await validate(registryEntry);
-      if (!result.valid) {
-        console.log(`${chalk.red("X")} ${result.errors}`);
-        continue;
+        printError(result.errors);
       }
 
-      signature = await sign(registryEntry, registryEntry.address);
+    } else if (answer.action == "Export") {
+      const result = await validate(registryEntry);
+      if (!result.valid) {
+        printError(result.errors);
+        continue;
+      }
       fs.writeFileSync(entryOutput, JSON.stringify(registryEntry, null, 2), 'utf-8');
-      fs.writeFileSync(sigOutput, JSON.stringify(signature, null, 2), 'utf-8');
       break;
     }
   }
