@@ -1,10 +1,18 @@
+#!/usr/bin/env node
+
+// Node imports
+const fs = require('fs');
+
+// Vendor imports
 const figlet = require('figlet');
 const inquirer = require('inquirer');
 const chalk = require('chalk');
+const Validator = require('jsonschema').Validator;
 const _ = require('underscore');
+
+// Ethereum imports
 const keythereum = require('keythereum');
 const etherutils = require('ethereumjs-util');
-const Validator = require('jsonschema').Validator;
 
 const selectAction = async () => {
   const action = [{
@@ -152,7 +160,6 @@ const sign = async (object, address) => {
 };
 
 const validate = async (entry) => {
-  const fs = require('fs');
   try {
     const path = await new Promise((resolve, reject) => {
       fs.realpath('./schema.json', (err, path) => {
@@ -181,6 +188,14 @@ const validate = async (entry) => {
 };
 
 const main = async () => {
+  const args = process.argv;
+  if (args.length != 4) {
+    usage = `Usage: polyswarm-registry <entry_output_file> <sig_output_file>`;
+    console.log(usage);
+    return;
+  }
+  const entryOutput = args[2];
+  const sigOutput = args[3];
   console.log(chalk.rgb(133, 0, 255)(figlet.textSync('PolySwarm Registry Builder')));
 
   let registryEntry = {
@@ -195,7 +210,8 @@ const main = async () => {
   };
 
   let answer = null;
-  while ((answer = await selectAction()).action != "Sign and exit") {
+  while (true) {
+    answer = await selectAction()
     if (answer.action == "Enter developer info") {
       const developer = await enterDeveloper();
       const keys = _.keys(developer);
@@ -219,13 +235,19 @@ const main = async () => {
       } else {
         console.log(`${chalk.red("X")} ${result.errors}`);
       }
+    } else if (answer.action == "Sign and exit") {
+      const result = await validate(registryEntry);
+      if (!result.valid) {
+        console.log(`${chalk.red("X")} ${result.errors}`);
+        continue;
+      }
+
+      signature = await sign(registryEntry, registryEntry.address);
+      fs.writeFileSync(entryOutput, JSON.stringify(registryEntry, null, 2), 'utf-8');
+      fs.writeFileSync(sigOutput, JSON.stringify(signature, null, 2), 'utf-8');
+      break;
     }
   }
-
-  // Validate
-
-  // Sign
-  console.log(JSON.stringify(registryEntry));
 }
 
 main();
