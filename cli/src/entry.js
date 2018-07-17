@@ -20,11 +20,6 @@ module.exports = class Entry {
     this.validateAuthor = this.validateAuthor.bind(this);
     this.validateSkills = this.validateSkills.bind(this);
     this.validateEthereumAddress = this.validateEthereumAddress.bind(this);
-    this.validateEngineAddress = this.validateEngineAddress.bind(this);
-    this.validateEngineTags = this.validateEngineTags.bind(this);
-    this.validateAddress = this.validateAddress.bind(this);
-    this.validateList = this.validateList.bind(this);
-    this.export = this.export.bind(this);
   }
 
   setDeveloper(developer) {
@@ -55,7 +50,7 @@ module.exports = class Entry {
     // If they submit an empty value but we have one, we are cool with it.
     if ((!skills || skills.length == 0) && this.skills.length > 0) {
       return true;
-    } else if (this.validateList(skills)) {
+    } else if (Entry.validateList(skills)) {
       return true;
     }
     return "Must enter at least one skill."
@@ -65,41 +60,29 @@ module.exports = class Entry {
     // If they submit an empty value but we have one, we are cool with it.
     if ((!address || address.length == 0) && this.address.length > 0) {
       return true;
-    } else if (this.validateAddress(address)) {
+    } else if (Entry.validateAddress(address)) {
       return true;
     }
-    return "Must be a valid Ethereum address."
+    return "Must be a valid Ethereum address, including 0x."
   }
 
-  validateEngineAddress(address) {
-    return this.validateAddress(address) ? true : "Must be a valid Ethereum address."
+  static validateEngineAddress(address) {
+    return Entry.validateAddress(address) ? true : "Must be a valid Ethereum address, including 0x."
   }
 
-  validateEngineTags(tags) {
-    return this.validateList(tags) ? true : "Must enter at least one tag."
+  static validateEngineTags(tags) {
+    return Entry.validateList(tags) ? true : "Must enter at least one tag."
   }
 
-  validateAddress(address) {
+  static validateAddress(address) {
     return address && etherutils.isValidAddress(address);
   }
 
-  validateList(list) {
+  static validateList(list) {
     list = list
     .split(",")
     .map(item => item.trim())
     .filter(item => item.length > 0)
     return list && list.length > 0;
-  }
-
-  export() {
-    return {
-      author: this.author,
-      address: this.address,
-      bio: this.bio,
-      github: this.github,
-      website: this.website,
-      microengines: this.microengines,
-      signatures: this.signatures
-    }
   }
 }
