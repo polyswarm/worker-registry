@@ -19,6 +19,8 @@
     "properties": {
         "author": { "type": "string", "minLength": 1 },
         "bio": {"type": "string" },
+        "website": {"type": "string" },
+        "github": {"type": "string" },
         "address": { "$ref": "#/$defs/address" },
         "skills": { "$ref": "#/$defs/tags"},
         "microengines": {
