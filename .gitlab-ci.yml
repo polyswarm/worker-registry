@@ -32,7 +32,7 @@ build-non-master:
     tags:
         - docker
     variables:
-        DOCKER_FULL_PATH: "$CI_REGISTRY_IMAGE/$CI_PROJECT_NAME:$CI_COMMIT_REF_NAME"
+        DOCKER_FULL_PATH: "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
     stage: build
     services:
         - docker:dind
