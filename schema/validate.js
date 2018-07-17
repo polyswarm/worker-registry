@@ -10,7 +10,7 @@ fs.readFile(path, 'utf8', (err, entryString) => {
   }
 
   const entry = JSON.parse(entryString);
-  fs.readFile('../src/workerregistry/data/schema.json', 'utf8', (err, schemaString) => {
+  fs.readFile('./schema.json', 'utf8', (err, schemaString) => {
     if(err) {
       console.error('Bad file to validate.', err);
       return;

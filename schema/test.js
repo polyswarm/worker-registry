@@ -27,7 +27,7 @@ let schema = {};
 //  };
 
 before((done) => {
-  fs.readFile('../src/workerregistry/data/schema.json', 'utf8',  (err, data) => {
+  fs.readFile('./schema.json', 'utf8',  (err, data) => {
     if (err) {
       return;
     }
