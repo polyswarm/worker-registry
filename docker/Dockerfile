@@ -1,9 +1,10 @@
-FROM python:3
+FROM python:3.5
 LABEL maintainer="PolySwarm Developers <info@polyswarm.io>"
 
 WORKDIR /usr/src/app
 
 COPY requirements.txt ./
+RUN set -x && pip install -U setuptools
 RUN set -x && pip install --no-cache-dir -r requirements.txt
 
 COPY . .
