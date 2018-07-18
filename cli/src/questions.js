@@ -10,6 +10,8 @@ const figlet = require('figlet');
 const chalk = require('chalk');
 const Validator = require('jsonschema').Validator;
 const _ = require('underscore');
+const CLI = require('clui');
+const Spinner = CLI.Spinner;
 
 // Ethereum imports
 const keythereum = require('keythereum');
@@ -159,8 +161,16 @@ module.exports = class Questions {
   static async sign(object, address, path, password) {
     const toSign = JSON.stringify(object);
 
-    const key = keythereum.importFromFile(address, path);
-    const buff_key = keythereum.recover(password, key);
+    const key = await new Promise(resolve => {
+      keythereum.importFromFile(address, path, data => {
+        resolve(data);
+      })
+    });
+    const buff_key = await new Promise(resolve => {
+      keythereum.recover(password, key, data => {
+        resolve(data);
+      });
+    });
 
     let msg =
     '0x' +
@@ -170,7 +180,9 @@ module.exports = class Questions {
     etherutils
       .hashPersonalMessage(etherutils.toBuffer(msg))
       .toString('hex');
-    const sig = etherutils.ecsign(etherutils.toBuffer(msg), buff_key);
+    const sig = await new Promise(resolve => {
+      resolve(etherutils.ecsign(etherutils.toBuffer(msg), buff_key));
+    });
     let r = '0x' + sig.r.toString('hex');
     let s = '0x' + sig.s.toString('hex');
     let v = sig.v;
@@ -195,10 +207,15 @@ module.exports = class Questions {
         },
       ];
       const keyInfo = await inquirer.prompt(signing);
-
+      const purple = chalk.rgb(133, 0, 255);
+      const spinnerSymbols = [purple('⠁'), purple('⠂'), purple('⠄'), purple('⡀'), purple('⢀') ,purple('⠠') ,purple('⠐') , purple('⠈')];
+      let spinner = new Spinner("Signing microengine object.", spinnerSymbols);
       try {
+        spinner.start();
         signed = await Questions.sign(object, address, keyInfo.keydir, keyInfo.password);
+        spinner.stop();
       } catch(error) {
+        spinner.stop();
         Questions.printError("Missing keyfile or bad password.");
       }
       if (signed == null) {
