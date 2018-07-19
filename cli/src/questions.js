@@ -1,21 +1,19 @@
 #!/usr/bin/env node
 
 // Project imports
-const Entry = require('./entry');
+const Entry = require("./entry");
 
 // Node & NPM imports
-const fs = require('fs');
-const inquirer = require('inquirer');
-const figlet = require('figlet');
-const chalk = require('chalk');
-const Validator = require('jsonschema').Validator;
-const _ = require('underscore');
-const CLI = require('clui');
+const fs = require("fs");
+const inquirer = require("inquirer");
+const chalk = require("chalk");
+const Validator = require("jsonschema").Validator;
+const CLI = require("clui");
 const Spinner = CLI.Spinner;
 
 // Ethereum imports
-const keythereum = require('keythereum');
-const etherutils = require('ethereumjs-util');
+const keythereum = require("keythereum");
+const etherutils = require("ethereumjs-util");
 
 module.exports = class Questions {
   constructor() {
@@ -75,12 +73,11 @@ module.exports = class Questions {
       "bio",
       "Share a short bio (optional)");
 
-
     if (developer.skills) {
       developer.skills = developer.skills
-      .split(",")
-      .map(skill => skill.trim())
-      .filter(skill => skill.length > 0);
+        .split(",")
+        .map(skill => skill.trim())
+        .filter(skill => skill.length > 0);
     }
     return developer;
   }
@@ -115,7 +112,7 @@ module.exports = class Questions {
       return null;
     }
 
-    const result = {}
+    const result = {};
     result.microengine = engine;
     result.signed = signed;
     return result;
@@ -142,18 +139,18 @@ module.exports = class Questions {
 
   static async selectAction() {
     const action = [{
-        type: "list",
-        name: "action",
-        message: "Choose an action.",
-        default: 0,
-        choices: [
-          "Enter developer info",
-          "Add a microengine",
-          new inquirer.Separator(),
-          "Validate",
-          "Export"
-        ]
-      }];
+      type: "list",
+      name: "action",
+      message: "Choose an action.",
+      default: 0,
+      choices: [
+        "Enter developer info",
+        "Add a microengine",
+        new inquirer.Separator(),
+        "Validate",
+        "Export"
+      ]
+    }];
 
     return await inquirer.prompt(action);
   }
@@ -164,7 +161,7 @@ module.exports = class Questions {
     const key = await new Promise(resolve => {
       keythereum.importFromFile(address, path, data => {
         resolve(data);
-      })
+      });
     });
     const buff_key = await new Promise(resolve => {
       keythereum.recover(password, key, data => {
@@ -173,18 +170,18 @@ module.exports = class Questions {
     });
 
     let msg =
-    '0x' +
-    etherutils.keccak(etherutils.toBuffer(toSign)).toString('hex');
+    "0x" +
+    etherutils.keccak(etherutils.toBuffer(toSign)).toString("hex");
     msg =
-    '0x' +
+    "0x" +
     etherutils
       .hashPersonalMessage(etherutils.toBuffer(msg))
-      .toString('hex');
+      .toString("hex");
     const sig = await new Promise(resolve => {
       resolve(etherutils.ecsign(etherutils.toBuffer(msg), buff_key));
     });
-    let r = '0x' + sig.r.toString('hex');
-    let s = '0x' + sig.s.toString('hex');
+    let r = "0x" + sig.r.toString("hex");
+    let s = "0x" + sig.s.toString("hex");
     let v = sig.v;
     return {r: r, s: s, v: v};
   }
@@ -197,18 +194,18 @@ module.exports = class Questions {
         {
           type: "input",
           name: "keydir",
-          default: `/home/${require('os').userInfo().username}/.ethereum/`,
+          default: `/home/${require("os").userInfo().username}/.ethereum/`,
           message: `Enter the path to the directory containing the keystore ${address}`
         },
         {
           type: "password",
           name: "password",
           message: `Enter password for ${address}`
-        },
+        }
       ];
       const keyInfo = await inquirer.prompt(signing);
       const purple = chalk.rgb(133, 0, 255);
-      const spinnerSymbols = [purple('⠁'), purple('⠂'), purple('⠄'), purple('⡀'), purple('⢀') ,purple('⠠') ,purple('⠐') , purple('⠈')];
+      const spinnerSymbols = [purple("⠁"), purple("⠂"), purple("⠄"), purple("⡀"), purple("⢀") ,purple("⠠") ,purple("⠐") , purple("⠈")];
       let spinner = new Spinner("Signing microengine object.", spinnerSymbols);
       try {
         spinner.start();
@@ -223,8 +220,8 @@ module.exports = class Questions {
           type: "confirm",
           message: "Failed to unlock the keyfile. Try again? (Choosing 'No' will remove this microengine)",
           default: false,
-          name: "again",
-        }]
+          name: "again"
+        }];
         const choice = await inquirer.prompt(tryAgain);
         if (!choice.again) {
           break;
@@ -237,7 +234,7 @@ module.exports = class Questions {
   static async validate(entry) {
     try {
       const path = await new Promise((resolve, reject) => {
-        fs.realpath('./schema.json', (err, path) => {
+        fs.realpath("./schema.json", (err, path) => {
           if (err) {
             reject(err);
             return;
@@ -247,7 +244,7 @@ module.exports = class Questions {
       });
 
       const schema = await new Promise((resolve, reject) => {
-        fs.readFile(path, 'utf-8', (err, schemaString) => {
+        fs.readFile(path, "utf-8", (err, schemaString) => {
           if (err) {
             reject(err);
             return;
@@ -296,4 +293,4 @@ module.exports = class Questions {
       }
     }
   }
-}
+};

@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
 const _ = require("underscore");
-const chalk = require("chalk");
-const etherutils = require('ethereumjs-util');
+const etherutils = require("ethereumjs-util");
 
 module.exports = class Entry {
   constructor() {
@@ -43,7 +42,7 @@ module.exports = class Entry {
     } else if (author && author.length > 0) {
       return true;
     }
-    return "Author must be more than 1 character."
+    return "Author must be more than 1 character.";
   }
 
   validateSkills(skills) {
@@ -53,7 +52,7 @@ module.exports = class Entry {
     } else if (skills && Entry.validateList(skills)) {
       return true;
     }
-    return "Must enter at least one skill."
+    return "Must enter at least one skill.";
   }
 
   validateEthereumAddress(address) {
@@ -63,15 +62,15 @@ module.exports = class Entry {
     } else if (Entry.validateAddress(address)) {
       return true;
     }
-    return "Must be a valid Ethereum address, including 0x."
+    return "Must be a valid Ethereum address, including 0x.";
   }
 
   static validateEngineAddress(address) {
-    return Entry.validateAddress(address) ? true : "Must be a valid Ethereum address, including 0x."
+    return Entry.validateAddress(address) ? true : "Must be a valid Ethereum address, including 0x.";
   }
 
   static validateEngineTags(tags) {
-    return tags && Entry.validateList(tags) ? true : "Must enter at least one tag."
+    return tags && Entry.validateList(tags) ? true : "Must enter at least one tag.";
   }
 
   static validateAddress(address) {
@@ -80,9 +79,9 @@ module.exports = class Entry {
 
   static validateList(list) {
     list = list
-    .split(",")
-    .map(item => item.trim())
-    .filter(item => item.length > 0)
+      .split(",")
+      .map(item => item.trim())
+      .filter(item => item.length > 0);
     return list && list.length > 0;
   }
-}
+};
