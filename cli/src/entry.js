@@ -50,7 +50,7 @@ module.exports = class Entry {
     // If they submit an empty value but we have one, we are cool with it.
     if ((!skills || skills.length == 0) && this.skills.length > 0) {
       return true;
-    } else if (Entry.validateList(skills)) {
+    } else if (skills && Entry.validateList(skills)) {
       return true;
     }
     return "Must enter at least one skill."
@@ -71,7 +71,7 @@ module.exports = class Entry {
   }
 
   static validateEngineTags(tags) {
-    return Entry.validateList(tags) ? true : "Must enter at least one tag."
+    return tags && Entry.validateList(tags) ? true : "Must enter at least one tag."
   }
 
   static validateAddress(address) {
