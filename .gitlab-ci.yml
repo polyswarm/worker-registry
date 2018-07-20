@@ -13,7 +13,7 @@ test-python35:
     script: tox -e py35
 
 test-node:
-    image: node:lastest
+    image: node
     stage: testjs
     tags:
         - docker
