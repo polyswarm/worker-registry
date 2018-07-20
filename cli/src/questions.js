@@ -158,13 +158,24 @@ module.exports = class Questions {
   static async sign(object, address, path, password) {
     const toSign = JSON.stringify(object);
 
-    const key = await new Promise(resolve => {
-      keythereum.importFromFile(address, path, data => {
-        resolve(data);
-      });
+    const key = await new Promise((resolve, reject) => {
+      /*
+       * The keythereum callbacks are done poorly.
+       * Just calling sync inside promise.
+       */
+      const data = keythereum.importFromFile(address, path);
+
+      if (data instanceof Error) {
+        reject(data);
+      }
+      resolve(data);
     });
-    const buff_key = await new Promise(resolve => {
+    const buff_key = await new Promise((resolve, reject) => {
       keythereum.recover(password, key, data => {
+        if (data instanceof Error) {
+          reject(data);
+          return;
+        }
         resolve(data);
       });
     });
@@ -177,8 +188,12 @@ module.exports = class Questions {
     etherutils
       .hashPersonalMessage(etherutils.toBuffer(msg))
       .toString("hex");
-    const sig = await new Promise(resolve => {
-      resolve(etherutils.ecsign(etherutils.toBuffer(msg), buff_key));
+    const sig = await new Promise((resolve, reject) => {
+      try {
+        resolve(etherutils.ecsign(etherutils.toBuffer(msg), buff_key));
+      } catch (error) {
+        reject(error);
+      }
     });
     let r = "0x" + sig.r.toString("hex");
     let s = "0x" + sig.s.toString("hex");
@@ -205,7 +220,7 @@ module.exports = class Questions {
       ];
       const keyInfo = await inquirer.prompt(signing);
       const purple = chalk.rgb(133, 0, 255);
-      const spinnerSymbols = [purple("⠁"), purple("⠂"), purple("⠄"), purple("⡀"), purple("⢀") ,purple("⠠") ,purple("⠐") , purple("⠈")];
+      const spinnerSymbols = [purple("⠁"), purple("⠈"), purple("⠐"), purple("⠂"), purple("⠄"), purple("⠠"), purple("⡀"), purple("⢀")];
       let spinner = new Spinner("Signing microengine object.", spinnerSymbols);
       try {
         spinner.start();
