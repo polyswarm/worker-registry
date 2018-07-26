@@ -35,7 +35,7 @@ build-master:
     services:
         - docker:dind
     script:
-        - docker build -t $DOCKER_FULL_PATH -f docker/Dockerfile .
+        - docker build -t $DOCKER_FULL_PATH -f service/docker/Dockerfile .
 
 build-non-master:
     image: docker:stable
@@ -49,4 +49,4 @@ build-non-master:
     services:
         - docker:dind
     script:
-        - docker build -t $DOCKER_FULL_PATH -f docker/Dockerfile .
+        - docker build -t $DOCKER_FULL_PATH -f service/docker/Dockerfile .
