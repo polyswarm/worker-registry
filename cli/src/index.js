@@ -8,17 +8,16 @@ const Questions = require("./questions");
 const yargs = require("yargs");
 const Web3 = require("web3");
 
-const getArgs = () => {
-  const args = process.argv;
-  if (args.length != 3) {
-    usage = `Usage: polyswarm-registry <entry_output_file>`;
-    console.error(usage);
+const checkFile = (argv) => {
+  if (!argv["filename"]) {
+    console.error('No file specified.');
     process.exit(1);
   }
-  return args[2];
-};
+}
 
 const generate = async (argv) => {
+  checkFile(argv);
+
   console.log(chalk.rgb(133, 0, 255)(figlet.textSync("PolySwarm Registry Builder")));
 
   const questions = new Questions();
@@ -36,6 +35,8 @@ const generate = async (argv) => {
 }
 
 const upload = async (argv) => {
+  checkFile(argv);
+
   console.log(argv["eth-uri"]);
   const web3 = new Web3(new Web3.providers.HttpProvider(argv["eth-uri"]));
 
@@ -54,10 +55,11 @@ const upload = async (argv) => {
 
 const main = async () => {
   const argv = yargs
-    .command(["$0", "generate [filename]"], "interactively generate a worker description", (yargs) => {
-      yargs.positional("filename", {
+    .command(["generate [filename]"], "interactively generate a worker description", (yargs) => {
+      yargs
+      .positional("filename", {
         description: "output filename",
-      })
+      });
     }, (argv) => {
       generate(argv);
     })
@@ -69,10 +71,11 @@ const main = async () => {
         .option("eth-uri", {
           descrption: "URI for Ethereum client's RPC interface",
           default: "http://localhost:8545",
-        })
+        });
     }, (argv) => {
       upload(argv);
     })
+    .help()
     .argv;
 };
 
