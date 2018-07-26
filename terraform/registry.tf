@@ -38,6 +38,7 @@ resource "digitalocean_droplet" "registry" {
       "chmod +x /usr/local/bin/docker-compose",
       "cd /root",
       "mkdir nginx",
+      "mkdir certs",
       "curl https://raw.githubusercontent.com/jwilder/nginx-proxy/master/nginx.tmpl > ./nginx/nginx.tmpl",
       "echo REGISTRY_ADDRESS=${var.registry_address} > .env",
       "echo ETH_URI=https://mainnet.infura.io/v3/${var.infura_token} >> .env",

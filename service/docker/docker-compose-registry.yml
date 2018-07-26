@@ -61,6 +61,10 @@ services:
             - LETSENCRYPT_EMAIL=info@polyswarm.io
 volumes:
     certs:
+            driver_opts:
+                type: none
+                device: /root/certs
+                o: bind
     conf:
     vhost:
     html:
