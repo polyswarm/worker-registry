@@ -9,6 +9,7 @@ test-python35:
     tags:
         - docker
     before_script:
+        - cd service
         - pip install tox
     script: tox -e py35
 
@@ -33,6 +34,8 @@ build-master:
     stage: build
     services:
         - docker:dind
+    before_script:
+        - cd service
     script:
         - docker build -t $DOCKER_FULL_PATH -f docker/Dockerfile .
 
@@ -47,5 +50,7 @@ build-non-master:
     stage: build
     services:
         - docker:dind
+    before_script:
+        - cd service
     script:
         - docker build -t $DOCKER_FULL_PATH -f docker/Dockerfile .

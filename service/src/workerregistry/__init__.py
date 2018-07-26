@@ -7,7 +7,7 @@ import requests
 import sys
 
 from flask import Blueprint, Flask, current_app, jsonify, request
-from werkzeug.exceptions import default_exceptions, HTTPException, BadRequest
+from werkzeug.exceptions import default_exceptions, HTTPException, BadRequest, NotFound
 from werkzeug.routing import BaseConverter, ValidationError
 from workerregistry.eth import Eth
 from workerregistry.utils import whereami
@@ -117,7 +117,9 @@ def before_request():
 @root.route('/<address:address>')
 def get_address(address):
     ipfs_hash = ipfs_hash_for_developer(address)
-    if not is_valid_ipfs_hash(ipfs_hash):
+    if not ipfs_hash:
+        raise NotFound('ipfs hash not found for developer')
+    elif not is_valid_ipfs_hash(ipfs_hash):
         raise BadRequest('invalid ipfs hash for developer')
 
     j = retrieve_from_ipfs(ipfs_hash)
