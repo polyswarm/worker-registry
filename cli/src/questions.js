@@ -249,7 +249,7 @@ module.exports = class Questions {
   static async validate(entry) {
     try {
       const path = await new Promise((resolve, reject) => {
-        fs.realpath("./schema.json", (err, path) => {
+        fs.realpath("src/data/schema.json", (err, path) => {
           if (err) {
             reject(err);
             return;
