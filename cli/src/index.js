@@ -1,18 +1,69 @@
 #! /usr/bin/env node
 
+// Project import
+const Questions = require("./questions");
+
+// Third Parth
 const chalk = require("chalk");
 const figlet = require("figlet");
 const fs = require("fs");
 const IpfsApi = require("ipfs-api");
-const Questions = require("./questions");
+const multihashes = require("multihashes");
+const Validator = require("jsonschema").Validator;
 const yargs = require("yargs");
+
+// Ethereum
 const Web3 = require("web3");
 
 const checkFile = (argv) => {
   if (!argv["filename"]) {
-    console.error('No file specified.');
+    console.error(`${chalk.red('ERROR:')} No file specified.`);
     process.exit(1);
   }
+}
+
+const existsAsync = async (filename) => {
+  return await new Promise(resolve => {
+    fs.exists(filename, exists => {
+      resolve(exists)
+    });
+  });
+}
+
+const isValidIpfsHash = (hash) => {
+  const toVerify = multihashes.fromB58String(hash);
+  try {
+    multihashes.validate(toVerify);
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+const readFileAsync = async (filename) => {
+  return await new Promise((resolve, reject) => {
+    fs.readFile(filename, (err, data) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(data);
+    });
+  });
+}
+
+const validateAsync = async (filename) => {
+  let result = null;
+  try {
+    const contents = await readFileAsync(filename);
+    const schema = await readFileAsync("./schema.json");
+
+    const validator = new Validator();
+    result = await validator.validate(JSON.parse(contents), JSON.parse(schema));
+  } catch(error) {
+    console.error(`${chalk.red('ERROR:')} ${error}`);
+    process.exit(1);
+  }
+  return result;
 }
 
 const generate = async (argv) => {
@@ -38,19 +89,38 @@ const generate = async (argv) => {
 const upload = async (argv) => {
   checkFile(argv);
 
+  const filename = argv["filename"];
+
+  if (! await existsAsync(filename)) {
+    console.error(`${chalk.red('ERROR:')} ${filename} does not exist`);
+    process.exit(1);
+  }
+
+  const validationResult = await validateAsync(filename);
+  if (! validationResult.valid) {
+    console.error(`${chalk.red('ERROR:')} ${filename} does not follow the PolySwarm WDL schema.`);
+    console.error(validationResult.errors)
+    process.exit(1);
+  }
+
   console.log(argv["eth-uri"]);
   const web3 = new Web3(new Web3.providers.HttpProvider(argv["eth-uri"]));
 
   const ipfs = IpfsApi({host: "ipfs.infura.io", port: 5001, protocol: "https"});
 
-  // TODO: Verify that filename is a regular readable file, and is valid json
-  // according to spec
   ipfs.util.addFromFs(argv["filename"], (err, result) => {
     if (err) {
       throw err;
     }
 
-    console.log(result[0]["hash"]);
+    const hash = result[0]["hash"];
+
+    if (isValidIpfsHash(hash)) {
+      console.log(hash);
+    } else {
+      console.error(`${chalk.red('ERROR:')} Invalid IPFS hash: ${hash}`);
+      process.exit(10);
+    }
   });
 }
 
