@@ -22,13 +22,14 @@ const generate = async (argv) => {
 
   const questions = new Questions();
   const result = await questions.ask();
+  const filename = argv["filename"]
   if (result) {
-    fs.writeFile(argv["filename"], JSON.stringify(result, null, 2), "utf-8", (err) => {
+    fs.writeFile(filename, JSON.stringify(result, null, 2), "utf-8", (err) => {
       if (err) {
-        console.error(`${chalk.red(">>")} Failed to write to ${entryOutput}`);
+        console.error(`${chalk.red(">>")} Failed to write to ${filename}`);
         console.log(JSON.stringify(result, null, 2));
       }
-      const message = `Successfully wrote entry to "${entryOutput}".`;
+      const message = `Successfully wrote entry to "${filename}".`;
       console.info(`${chalk.blue("!")} ${chalk.bold(message)}`);
     });
   }
