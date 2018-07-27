@@ -1,4 +1,4 @@
-const fs = require("fs");
+const utils = require('./utils.js');
 const chalk = require("chalk");
 const IpfsApi = require("ipfs-api");
 const multihashes = require("multihashes");
@@ -12,14 +12,6 @@ class Upload {
     this.upload = this.upload.bind(this);
   }
 
-  static async existsAsync(filename) {
-    return await new Promise(resolve => {
-      fs.exists(filename, exists => {
-        resolve(exists)
-      });
-    });
-  }
-
   static isValidIpfsHash(hash) {
     const toVerify = multihashes.fromB58String(hash);
     try {
@@ -30,22 +22,11 @@ class Upload {
     }
   }
 
-  static async readFileAsync(filename) {
-    return await new Promise((resolve, reject) => {
-      fs.readFile(filename, (err, data) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(data);
-      });
-    });
-  }
-
   static async validateAsync(filename, schema) {
     let result = null;
     try {
-      const contents = await Upload.readFileAsync(filename);
-      const schemaContents = await Upload.readFileAsync(schema);
+      const contents = await utils.readFileAsync(filename);
+      const schemaContents = await utils.readFileAsync(schema);
 
       const validator = new Validator();
       result = await validator.validate(JSON.parse(contents), JSON.parse(schemaContents));
@@ -57,7 +38,7 @@ class Upload {
   }
 
   async upload() {
-    if (! await Upload.existsAsync(this.filename)) {
+    if (! await utils.existsAsync(this.filename)) {
       console.error(`${chalk.red('ERROR:')} ${this.filename} does not exist`);
       process.exit(1);
     }
@@ -70,24 +51,31 @@ class Upload {
     }
 
     const ipfs = IpfsApi({host: "ipfs.infura.io", port: 5001, protocol: "https"});
+    const spinner = utils.getSpinner(`Uploading ${this.filename} to IPFS`);
+    spinner.start();
+    try {
+      const verified = await new Promise((resolve, reject) => {
+        ipfs.util.addFromFs(this.filename, (err, result) => {
+          if (err) {
+            reject(err);
+          }
 
-    return await new Promise((resolve, reject) => {
-      ipfs.util.addFromFs(this.filename, (err, result) => {
-        if (err) {
-          reject(err);
-        }
+          const hash = result[0]["hash"];
 
-        const hash = result[0]["hash"];
-
-        if (Upload.isValidIpfsHash(hash)) {
-          console.log(hash);
-          resolve(hash);
-        } else {
-          console.error(`${chalk.red('ERROR:')} Invalid IPFS hash: ${hash}`);
-          process.exit(10);
-        }
+          if (Upload.isValidIpfsHash(hash)) {
+            resolve(hash);
+          } else {
+            reject(`Invalid IPFS hash: ${hash}`);
+          }
+        });
       });
-    });
+      spinner.stop();
+      return verified;
+    } catch (error) {
+      spinner.stop();
+      console.error(`${chalk.red('ERROR:')} ${error}`);
+      process.exit(10);
+    }
   }
 }
 module.exports = Upload;

@@ -2,14 +2,13 @@
 
 // Project imports
 const Entry = require("./entry");
+const utils = require("./utils");
 
 // Node & NPM imports
 const fs = require("fs");
 const inquirer = require("inquirer");
 const chalk = require("chalk");
 const Validator = require("jsonschema").Validator;
-const CLI = require("clui");
-const Spinner = CLI.Spinner;
 
 // Ethereum imports
 const keythereum = require("keythereum");
@@ -219,9 +218,7 @@ module.exports = class Questions {
         }
       ];
       const keyInfo = await inquirer.prompt(signing);
-      const purple = chalk.rgb(133, 0, 255);
-      const spinnerSymbols = [purple("⠁"), purple("⠈"), purple("⠐"), purple("⠂"), purple("⠄"), purple("⠠"), purple("⡀"), purple("⢀")];
-      let spinner = new Spinner("Signing microengine object.", spinnerSymbols);
+      const spinner = utils.getSpinner("Signing microengine object.");
       try {
         spinner.start();
         signed = await Questions.sign(object, address, keyInfo.keydir, keyInfo.password);
