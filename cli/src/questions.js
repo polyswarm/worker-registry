@@ -11,7 +11,6 @@ const chalk = require("chalk");
 const Validator = require("jsonschema").Validator;
 
 // Ethereum imports
-const keythereum = require("keythereum");
 const etherutils = require("ethereumjs-util");
 
 module.exports = class Questions {
@@ -157,27 +156,8 @@ module.exports = class Questions {
   static async sign(object, address, path, password) {
     const toSign = JSON.stringify(object);
 
-    const key = await new Promise((resolve, reject) => {
-      /*
-       * The keythereum callbacks are done poorly.
-       * Just calling sync inside promise.
-       */
-      const data = keythereum.importFromFile(address, path);
-
-      if (data instanceof Error) {
-        reject(data);
-      }
-      resolve(data);
-    });
-    const buff_key = await new Promise((resolve, reject) => {
-      keythereum.recover(password, key, data => {
-        if (data instanceof Error) {
-          reject(data);
-          return;
-        }
-        resolve(data);
-      });
-    });
+    const key = await utils.loadKeyFile(address, path);
+    const buff_key = await utils.decryptKey(password, key);
 
     let msg =
     "0x" +

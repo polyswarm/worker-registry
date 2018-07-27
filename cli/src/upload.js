@@ -12,16 +12,6 @@ class Upload {
     this.upload = this.upload.bind(this);
   }
 
-  static isValidIpfsHash(hash) {
-    const toVerify = multihashes.fromB58String(hash);
-    try {
-      multihashes.validate(toVerify);
-      return true;
-    } catch (error) {
-      return false;
-    }
-  }
-
   static async validateAsync(filename, schema) {
     let result = null;
     try {
@@ -62,7 +52,7 @@ class Upload {
 
           const hash = result[0]["hash"];
 
-          if (Upload.isValidIpfsHash(hash)) {
+          if (utils.isValidIpfsHash(hash)) {
             resolve(hash);
           } else {
             reject(`Invalid IPFS hash: ${hash}`);
