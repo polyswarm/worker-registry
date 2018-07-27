@@ -19,8 +19,8 @@ const Tx = require("ethereumjs-tx");
 const keythereum = require("keythereum");
 
 const checkArgs = argv => {
-  if (!argv["wallet"]) {
-    console.error(`${chalk.red('ERROR:')} No wallet specified.`);
+  if (!argv["wallet-address"]) {
+    console.error(`${chalk.red('ERROR:')} No wallet address specified.`);
     process.exit(1);
   }
 
@@ -92,7 +92,7 @@ const register = async argv => {
   const hash = argv["hash"];
   const update = argv["update"] || false;
   const contractAddress = argv["contract"];
-  const wallet = argv["wallet"];
+  const wallet = argv["wallet-address"];
   const keystore = argv["keystore"];
   const eth = argv["eth-uri"];
 
@@ -123,16 +123,16 @@ const main = async () => {
           description: "worker description json to upload",
         });
     }, upload)
-    .command("register [hash] [wallet]", "Register your worker description on Ethereum", yargs => {
+    .command("register [hash] [wallet-address]", "Register your worker description on Ethereum", yargs => {
       yargs
       .positional("hash", {
         description: "IPFS hash of the worker description.",
       })
-      .positional("wallet", {
+      .positional("wallet-address", {
         description: "Wallet address to send transaction from.",
       })
       .option("update", {
-        description: "Update the current worker description for this wallet",
+        description: "Update the current worker description for this address",
         default: false
       })
       .option("keystore", {

@@ -100,18 +100,18 @@ Then, it spits out the IPFS hash.
 ## Register the description on Ethereum
 
 ```text
-polyswarm-registry register [hash] [wallet]
+polyswarm-registry register [hash] [wallet-address]
 
 Register your worker description on Ethereum
 
 Positionals:
   hash    IPFS hash of the worker description.
-  wallet  Wallet address to send transaction from.
+  wallet-address  Wallet address to send transaction from.
 
 Options:
   --version   Show version number                                      [boolean]
   --help      Show help                                                [boolean]
-  --update    Update the current worker description for this wallet
+  --update    Update the current worker description for this address
                                                                 [default: false]
   --keystore  Directory containing the 'keystore/' directory.
                                               [default: "/home/user/.ethereum/"]
