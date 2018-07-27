@@ -41,8 +41,6 @@ class Upload {
     }
 
     const ipfs = IpfsApi({host: "ipfs.infura.io", port: 5001, protocol: "https"});
-    const spinner = utils.getSpinner(`Uploading ${this.filename} to IPFS`);
-    spinner.start();
     try {
       const verified = await new Promise((resolve, reject) => {
         ipfs.util.addFromFs(this.filename, (err, result) => {
@@ -59,10 +57,8 @@ class Upload {
           }
         });
       });
-      spinner.stop();
       return verified;
     } catch (error) {
-      spinner.stop();
       console.error(`${chalk.red('ERROR:')} ${error}`);
       process.exit(10);
     }
