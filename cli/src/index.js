@@ -59,7 +59,7 @@ const generate = async argv => {
 
   const questions = new Questions();
   const result = await questions.ask();
-  const filename = argv["filename"]
+  const filename = argv["filename"];
   if (result) {
     fs.writeFile(filename, JSON.stringify(result, null, 2), "utf-8", err => {
       if (err) {
@@ -105,11 +105,13 @@ const register = async argv => {
 
   const registry = new Registry(web3, contractAddress, wallet, keystore, hash);
   const receipt = await registry.register(update);
-  console.log(`Transaction Receipt: ${receipt.transactionHash}`);
+  if (receipt) {
+    console.log(`Transaction Receipt: ${receipt.transactionHash}`);
+  }
 };
 
 const main = async () => {
-  const argv = yargs
+  yargs
     .command("generate [filename]", "interactively generate a worker description", yargs => {
       yargs
       .positional("filename", {

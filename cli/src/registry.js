@@ -74,13 +74,19 @@ class Registry {
     const gasPrice = this.web3.utils.toWei('3', 'gwei');
     const nonce = await this.web3.eth.getTransactionCount(this.wallet);
 
-    const gasLimit = await this.web3.eth.estimateGas({
-      to: this.contractAddress,
-      from: this.wallet,
-      data: input,
-      value: 0x0,
-      gasPrice: this.web3.utils.numberToHex(gasPrice)
-    });
+    let gasLimit = 0;
+    try {
+      gasLimit = await this.web3.eth.estimateGas({
+        to: this.contractAddress,
+        from: this.wallet,
+        data: input,
+        value: 0x0,
+        gasPrice: this.web3.utils.numberToHex(gasPrice)
+      });
+    } catch (error) {
+      console.error(`${chalk.red("ERROR:")} Transaction cannot succeed. If you have already registered a worker with this address try again with --update`);
+      process.exit(11);
+    }
 
     return {
       to: this.contractAddress,
