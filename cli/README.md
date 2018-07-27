@@ -1,8 +1,8 @@
 # PolySwarm Registry CLI
 
-This command line tool assits in the creation of worker descriptions which enables developers to claim microengines and add metadata so that Ambassadors can find them.
+This command line tool assists in the creation of worker descriptions that enable developers to claim microengines and add metadata so that Ambassadors can find them.
 Worker descriptions must match our JSON schema, which includes required signatures of various blocks.
-Creating the JSON file manually can be time consuming, so we released this to simplify the process.
+Creating a matching JSON file manually can be time consuming, so we released this to simplify the process.
 
 ## Install polyswarm-registry
 
@@ -55,7 +55,7 @@ Options:
 
 The generate subcommand takes you on a guided tour to build a worker description JSON file.
 When you start the generator, it will give you a choice of several actions.
-After each choice completes it will bring you back to the main screen, depicted below.
+After each choice is completed, it will bring you back to the main screen, depicted below.
 It is easy enough to follow top to bottom, but you can choose to add a microengine before adding the developer info.
 You must enter both developer info, and at least one microengine. You can add as many microengines as you like.
 
@@ -63,7 +63,7 @@ When adding a microengine, it will do more than ask for the information you see 
 It will also prompt for a keystore directory, and a password.
 With the keystore and password, it will sign the given microengine data, and add it as en entry in signatures.
 The directory defaults to `/home/[username]/.ethereum/`, but you can enter whatever directory you would like.
-However, the directory you choose must contain a directory named `keystore/` which has a the keyfile for the given addres inside.
+However, the directory you choose must contain another directory named `keystore/` which has a the keyfile for the given addres inside.
 
 Once you have entered in all required information, try the `Validate` option.
 This will tell you any remainging fields to be filled in.
@@ -127,7 +127,7 @@ If you have you own local geth listening at the default rpc port `8545`, there i
 
 Use `--keystore` to specify the location of your key file.
 
-Use `--contract` to specify an alternate contract.
+Use `--contract` to specify an alternate contract address.
 
 Use `--update` if you are submitting with an address that has an existing worker description.
 
