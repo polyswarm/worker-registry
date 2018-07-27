@@ -2,17 +2,15 @@
 
 // Project imports
 const Entry = require("./entry");
+const utils = require("./utils");
 
 // Node & NPM imports
 const fs = require("fs");
 const inquirer = require("inquirer");
 const chalk = require("chalk");
 const Validator = require("jsonschema").Validator;
-const CLI = require("clui");
-const Spinner = CLI.Spinner;
 
 // Ethereum imports
-const keythereum = require("keythereum");
 const etherutils = require("ethereumjs-util");
 
 module.exports = class Questions {
@@ -158,27 +156,8 @@ module.exports = class Questions {
   static async sign(object, address, path, password) {
     const toSign = JSON.stringify(object);
 
-    const key = await new Promise((resolve, reject) => {
-      /*
-       * The keythereum callbacks are done poorly.
-       * Just calling sync inside promise.
-       */
-      const data = keythereum.importFromFile(address, path);
-
-      if (data instanceof Error) {
-        reject(data);
-      }
-      resolve(data);
-    });
-    const buff_key = await new Promise((resolve, reject) => {
-      keythereum.recover(password, key, data => {
-        if (data instanceof Error) {
-          reject(data);
-          return;
-        }
-        resolve(data);
-      });
-    });
+    const key = await utils.loadKeyFile(address, path);
+    const buff_key = await utils.decryptKey(password, key);
 
     let msg =
     "0x" +
@@ -219,9 +198,7 @@ module.exports = class Questions {
         }
       ];
       const keyInfo = await inquirer.prompt(signing);
-      const purple = chalk.rgb(133, 0, 255);
-      const spinnerSymbols = [purple("⠁"), purple("⠈"), purple("⠐"), purple("⠂"), purple("⠄"), purple("⠠"), purple("⡀"), purple("⢀")];
-      let spinner = new Spinner("Signing microengine object.", spinnerSymbols);
+      const spinner = utils.getSpinner("Signing microengine object.");
       try {
         spinner.start();
         signed = await Questions.sign(object, address, keyInfo.keydir, keyInfo.password);
@@ -249,7 +226,7 @@ module.exports = class Questions {
   static async validate(entry) {
     try {
       const path = await new Promise((resolve, reject) => {
-        fs.realpath("./schema.json", (err, path) => {
+        fs.realpath("src/data/schema.json", (err, path) => {
           if (err) {
             reject(err);
             return;
