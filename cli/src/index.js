@@ -118,7 +118,7 @@ const main = async () => {
         description: "output filename",
       });
     }, generate)
-    .command("upload [filename] [wallet] [keystore]", "upload a worker description", yargs => {
+    .command("upload [filename]", "upload a worker description", yargs => {
       yargs.positional("filename", {
           description: "worker description json to upload",
         });
