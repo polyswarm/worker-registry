@@ -105,7 +105,7 @@ const register = async argv => {
 
   const registry = new Registry(web3, contractAddress, wallet, keystore, hash);
   const receipt = await registry.register(update);
-  console.log(receipt.transactionHash);
+  console.log(`Transaction Receipt: ${receipt.transactionHash}`);
 };
 
 const main = async () => {
