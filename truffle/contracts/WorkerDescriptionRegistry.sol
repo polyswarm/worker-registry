@@ -1,8 +1,10 @@
 pragma solidity ^0.4.21;
 
 import "zeppelin-solidity/contracts/lifecycle/Pausable.sol";
+import "zeppelin-solidity/contracts/math/SafeMath.sol";
 
 contract WorkerDescriptionRegistry is Pausable {
+  using SafeMath for uint256;
 
   struct WorkerDescription {
       address workerOwner;
@@ -37,7 +39,7 @@ contract WorkerDescriptionRegistry is Pausable {
     require(idToWorkerDescription[addressToId[msg.sender]].workerOwner == address(0));
 
     uint256 id = ids.length;
-    uint256 index = ids.push(id) - 1;
+    uint256 index = ids.push(id).sub(1);
 
     WorkerDescription memory wd = WorkerDescription(msg.sender, ipfsURI, index, index);
 
@@ -51,18 +53,19 @@ contract WorkerDescriptionRegistry is Pausable {
   */
 
   function removeWorkerDescription(uint256 id) public onlyWorkerDescriptionOwner(id) whenNotPaused {
-
     uint256 indexToRemove = idToWorkerDescription[id].index;
-    uint256 replacementId = ids[ids.length - 1];
+    uint256 replacementId = ids[ids.length.sub(1)];
+
+    idToWorkerDescription[id].workerOwner = address(0);
 
     ids[indexToRemove] = replacementId;
     WorkerDescription storage wd = idToWorkerDescription[replacementId];
     wd.index = indexToRemove;
 
     delete addressToId[msg.sender];
-    delete ids[ids.length - 1];
+    delete ids[ids.length.sub(1)];
 
-    ids.length--;
+    ids.length = ids.length.sub(1);
 }
 
   /**
