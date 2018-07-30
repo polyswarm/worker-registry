@@ -11,7 +11,8 @@ test-python35:
     before_script:
         - cd service
         - pip install tox
-        - apt-get install libgmp-dev
+        - apt-get update -y
+        - apt-get install libgmp-dev -y
     script: tox -e py35
 
 test-node:
