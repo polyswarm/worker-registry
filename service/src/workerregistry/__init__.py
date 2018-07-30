@@ -64,6 +64,12 @@ def create_app(ipfs_uri=DEFAULT_IPFS_URI,
     return app
 
 
+def developer_addresses():
+    registry = eth.contract('WorkerDescriptionRegistry')
+    addresses = registry.functions.getWorkerOwnerAddresses().call()
+    return addresses
+
+
 def is_valid_ipfs_hash(ipfs_hash):
     # TODO: Further multihash validation
     try:
@@ -112,6 +118,11 @@ def validate_schema(j):
 def before_request():
     print(
         datetime.datetime.now(), request.method, request.path, file=sys.stderr)
+
+
+@root.route('/')
+def get_addresses():
+    return jsonify({'addresses': developer_addresses()})
 
 
 @root.route('/<address:address>')
