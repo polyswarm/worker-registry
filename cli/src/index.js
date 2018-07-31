@@ -140,11 +140,11 @@ const main = async () => {
         default: `/home/${require("os").userInfo().username}/.ethereum/`
       })
       .option("contract", {
-        descrption: "Deployed address for the WorkerDescriptionRegistry contract",
-        default: "0x00000000000000000000000000000",
+        description: "Deployed address for the WorkerDescriptionRegistry contract",
+        default: "0xdcc020150e8a383b4f1a5668301254bc7aeb3633",
       })
       .option("eth-uri", {
-        descrption: "URI for Ethereum client's RPC interface",
+        description: "URI for Ethereum client's RPC interface",
         default: "http://localhost:8545",
       });
     }, register)
