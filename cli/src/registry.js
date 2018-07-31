@@ -68,7 +68,7 @@ class Registry {
       const id = await registry.methods.addressToId(this.wallet).call();
       input = registry.methods.updateWorkerDescription(this.hash, id).encodeABI();
     } else {
-      input = registry.methods.addWorkDescription(this.hash).encodeABI();
+      input = registry.methods.addWorkerDescription(this.hash).encodeABI();
     }
 
     const gasPrice = this.web3.utils.toWei('3', 'gwei');
