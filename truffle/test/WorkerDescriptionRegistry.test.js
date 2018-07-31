@@ -14,40 +14,44 @@ require('chai')
 
 const WorkerDescriptionRegistry = artifacts.require('WorkerDescriptionRegistry');
 let wdr;
-const ipfsHash = 'QmfQ5QAjvg4GtA3wg3adpnDJug8ktA1BxurVqBD8rtgVjM';
+const ipfsHash = 'QmfC6Ra1rGSBWzBDsbJxhKbocr5Buoou3AgG5G9y5DGPHv';
 
 contract('WorkerDescriptionRegistry', function ([owner, user0, user1, user2]) {
   describe('Worker Description Registry functions', function() {
-    before(async () => {
+    beforeEach(async () => {
       wdr = await WorkerDescriptionRegistry.new();
     })
 
     it('should allow users to add a worker description', async function() {
-        await wdr.addWorkDescription(ipfsHash, { from: user0 });
-        await wdr.addWorkDescription(ipfsHash, { from: user1 });
-        await wdr.addWorkDescription(ipfsHash, { from: user2 });
+      await wdr.addWorkerDescription(ipfsHash, { from: user0 });
+      await wdr.addWorkerDescription(ipfsHash, { from: user1 });
+      await wdr.addWorkerDescription(ipfsHash, { from: user2 });
 
-        let wdlID = await wdr.addressToId.call(user0);
-        let wd = await wdr.idToWorkerDescription.call(wdlID);
+      let wdlID = await wdr.addressToId.call(user0);
+      let wd = await wdr.idToWorkerDescription.call(wdlID);
 
-        assert.equal(wd[0], user0);
-        assert.equal(wd[1], ipfsHash);
+      assert.equal(wd[0], user0);
+      assert.equal(wd[1], ipfsHash);
 
-        wdlID = await wdr.addressToId.call(user1);
-        wd = await wdr.idToWorkerDescription.call(wdlID);
+      wdlID = await wdr.addressToId.call(user1);
+      wd = await wdr.idToWorkerDescription.call(wdlID);
 
-        assert.equal(wd[0], user1);
-        assert.equal(wd[1], ipfsHash);
+      assert.equal(wd[0], user1);
+      assert.equal(wd[1], ipfsHash);
 
-        wdlID = await wdr.addressToId.call(user2);
-        wd = await wdr.idToWorkerDescription.call(wdlID);
+      wdlID = await wdr.addressToId.call(user2);
+      wd = await wdr.idToWorkerDescription.call(wdlID);
 
-        assert.equal(wd[0], user2);
-        assert.equal(wd[1], ipfsHash);
+      assert.equal(wd[0], user2);
+      assert.equal(wd[1], ipfsHash);
 
     });
 
     it('should allow a user to remove their worker description', async function() {
+      await wdr.addWorkerDescription(ipfsHash, { from: user0 });
+      await wdr.addWorkerDescription(ipfsHash, { from: user1 });
+      await wdr.addWorkerDescription(ipfsHash, { from: user2 });
+
       let wdlID = await wdr.addressToId.call(user0);
 
       await wdr.removeWorkerDescription(wdlID.toNumber(), { from: user0 });
@@ -58,6 +62,10 @@ contract('WorkerDescriptionRegistry', function ([owner, user0, user1, user2]) {
     });
 
     it('should not allow a user to remove their worker description if they have removed it', async function() {
+      await wdr.addWorkerDescription(ipfsHash, { from: user0 });
+      await wdr.addWorkerDescription(ipfsHash, { from: user1 });
+      await wdr.addWorkerDescription(ipfsHash, { from: user2 });
+
       let wdlID = await wdr.addressToId.call(user1);
 
       await wdr.removeWorkerDescription(wdlID.toNumber(), { from: user1 });
@@ -71,16 +79,32 @@ contract('WorkerDescriptionRegistry', function ([owner, user0, user1, user2]) {
     });
 
     it('should allow a user to update their worker description', async function() {
+      await wdr.addWorkerDescription(ipfsHash, { from: user0 });
+      await wdr.addWorkerDescription(ipfsHash, { from: user1 });
+      await wdr.addWorkerDescription(ipfsHash, { from: user2 });
+
       let newIPFSHash = 'Qmb4atcgbbN5v4CDJ8nz5QG5L2pgwSTLd3raDrnyhLjnUH';
 
       let wdlID = await wdr.addressToId.call(user2);
 
-      await wdr.updateWorkerDescription(newIPFSHash, wdlID.toNumber(), { from: user2 });
+      await wdr.updateWorkerDescription(wdlID.toNumber(), newIPFSHash, { from: user2 });
 
       let wd = await wdr.idToWorkerDescription.call(wdlID);
 
       assert.equal(wd[1], newIPFSHash);
 
     });
+
+    it('should allow listing addresses of worker description owners', async function() {
+      await wdr.addWorkerDescription(ipfsHash, { from: user0 });
+      await wdr.addWorkerDescription(ipfsHash, { from: user1 });
+      await wdr.addWorkerDescription(ipfsHash, { from: user2 });
+
+      let addresses = await wdr.getWorkerOwnerAddresses();
+      assert.equal(addresses[0], user0);
+      assert.equal(addresses[1], user1);
+      assert.equal(addresses[2], user2);
+    });
+
   });
 });
