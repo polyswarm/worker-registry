@@ -15,7 +15,7 @@ from workerregistry.utils import whereami
 DEFAULT_IPFS_URI = 'http://localhost:5001'
 DEFAULT_ETH_URI = 'http://localhost:8545'
 DEFAULT_SIZE_LIMIT = 10 * 1024 * 1024
-DEFAULT_REGISTRY_ADDRESS = '0x0000000000000000000000000000000000000000'
+DEFAULT_REGISTRY_ADDRESS = '0xdcc020150e8a383b4f1a5668301254bc7aeb3633'
 
 eth = None
 root = Blueprint('root', __name__)
