@@ -2,6 +2,7 @@
   "name": "polyswarm-registry",
   "version": "1.0.0",
   "description": "Generate & sign worker registry json file.",
+  "repository" : "github:polyswarm/worker-registry",
   "bin": {
     "polyswarm-registry": "./src/index.js"
   },
