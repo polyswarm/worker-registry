@@ -56,3 +56,4 @@ build-non-master:
         - cd service
     script:
         - docker build -t $DOCKER_FULL_PATH -f docker/Dockerfile .
+
